@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Make It Fit</title>
+<meta name="description" content="Shrink photos and PDFs to the size a form asks for — offline and private.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A1D22" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+<link rel="modulepreload" href="app.js">
+<script>
+  // Set language and theme before first paint so Arabic users never see a flash of English.
+  (function () {
+    try {
+      var s = JSON.parse(localStorage.getItem('mifa.settings.v1') || '{}');
+      var lang = s.lang && s.lang !== 'auto' ? s.lang : ((navigator.language || 'en').toLowerCase().indexOf('ar') === 0 ? 'ar' : 'en');
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      if (s.theme === 'light' || s.theme === 'dark') document.documentElement.dataset.theme = s.theme;
+    } catch (e) { /* defaults */ }
+  })();
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-crop" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M4 19h16"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M3 17c3-1 4-6 6-6s1 5 3 5 3-4 5-4 2 2 4 2"/><path d="M3 21h18"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 18c1-2.5 3-3.5 5-3.5s4 1 5 3.5"/></symbol>
+  <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.5 1.7-2.2 3-2.2s2.4.7 3 2.2"/><path d="M14 10h4M14 13h4"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h5M10 16h5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M4 20L15 9"/><path d="M14 4v2M19 9h2M17.5 5.5l1.5-1.5M10 5l1 1M18 13l1 1"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+</svg>
+
+<header class="appbar">
+  <img class="logo" src="icons/icon-192.png" alt="" width="28" height="28">
+  <span class="app-title" data-i18n="app.name">Make It Fit</span>
+  <span class="spacer"></span>
+  <button class="btn icon" id="btnHelp" data-i18n-aria="help.title"><svg class="i"><use href="#i-help"/></svg></button>
+  <button class="btn icon" id="btnSettings" data-i18n-aria="settings.title"><svg class="i"><use href="#i-gear"/></svg></button>
+</header>
+
+<main class="main">
+  <section class="card setup" aria-labelledby="setupTitle">
+    <div class="card-head">
+      <h2 id="setupTitle" data-i18n="setup.title">What is it for?</h2>
+      <button class="btn small accent" id="btnRules"><svg class="i"><use href="#i-wand"/></svg><span data-i18n="rules.button">Read the rules</span></button>
+    </div>
+    <div class="purposes" id="purposes" role="radiogroup" data-i18n-aria="setup.title"></div>
+    <p class="setup-summary" id="setupSummary"></p>
+  </section>
+
+  <section class="card files" aria-labelledby="filesTitle">
+    <div class="empty" id="empty">
+      <svg class="sizer" viewBox="0 0 180 136" aria-hidden="true">
+        <path d="M24 46v76h132V46" fill="none" stroke="var(--yellow)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        <g class="doc">
+          <path d="M66 10h34l16 16v64H66z" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="2"/>
+          <path d="M100 10v16h16" fill="none" stroke="var(--line-strong)" stroke-width="2"/>
+          <rect x="75" y="40" width="32" height="4" rx="2" fill="var(--ghost)"/>
+          <rect x="75" y="50" width="32" height="4" rx="2" fill="var(--ghost)"/>
+          <rect x="75" y="60" width="20" height="4" rx="2" fill="var(--ghost)"/>
+          <rect x="75" y="74" width="32" height="5" rx="2.5" fill="var(--jade)"/>
+        </g>
+      </svg>
+      <h1 data-i18n="empty.title">Make any photo or PDF fit the size limit</h1>
+      <p data-i18n="empty.text">Pick your files, set the limit the website or form asks for, and get the best-quality file that still fits.</p>
+      <div class="empty-buttons">
+        <button class="btn primary big" id="btnChoose"><svg class="i"><use href="#i-plus"/></svg><span data-i18n="files.choose">Choose photos or PDFs</span></button>
+        <button class="btn big" id="btnCamera"><svg class="i"><use href="#i-camera"/></svg><span data-i18n="files.camera">Take a photo</span></button>
+      </div>
+      <p class="private-note"><svg class="i"><use href="#i-shield"/></svg><span data-i18n="empty.private">Works offline. Your files never leave this phone.</span></p>
+    </div>
+    <div id="fileList" hidden>
+      <div class="list-head">
+        <h2 id="filesTitle"><span data-i18n="files.title">Files</span> <span class="count" id="fileCount"></span></h2>
+        <span class="spacer"></span>
+        <button class="btn small" id="btnAddMore"><svg class="i"><use href="#i-plus"/></svg><span data-i18n="files.add">Add</span></button>
+        <button class="btn small icon-only" id="btnCameraMore" data-i18n-aria="files.camera"><svg class="i"><use href="#i-camera"/></svg></button>
+        <button class="btn small quiet" id="btnClear" data-i18n="files.clear">Clear</button>
+      </div>
+      <ul class="rows" id="rows"></ul>
+      <div class="summary" id="summary" hidden>
+        <p id="summaryText"></p>
+        <div class="summary-actions">
+          <button class="btn" id="btnSaveAll"><svg class="i"><use href="#i-save"/></svg><span id="saveAllLabel"></span></button>
+          <button class="btn" id="btnShareAll"><svg class="i"><use href="#i-share"/></svg><span data-i18n="files.shareAll">Share all</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card limit" aria-labelledby="limitTitle">
+    <h2 id="limitTitle" data-i18n="limit.title">Size limit</h2>
+    <p class="sub" data-i18n="limit.sub">Each file will be made smaller than this.</p>
+    <div class="chips" id="chips" role="radiogroup" data-i18n-aria="limit.title"></div>
+    <div class="custom-grid">
+      <label for="limitValue" data-i18n="limit.max">Maximum</label>
+      <div class="num-unit">
+        <input type="text" id="limitValue" inputmode="decimal" autocomplete="off" enterkeyhint="done">
+        <select id="limitUnit" data-i18n-aria="limit.unit"><option value="1000">KB</option><option value="1000000">MB</option></select>
+      </div>
+      <label for="minValue" data-i18n="limit.min">Minimum (optional)</label>
+      <div class="num-unit">
+        <input type="text" id="minValue" inputmode="decimal" autocomplete="off" enterkeyhint="done" data-i18n-placeholder="limit.none">
+        <select id="minUnit" data-i18n-aria="limit.unit"><option value="1000">KB</option><option value="1000000">MB</option></select>
+      </div>
+    </div>
+    <p class="limit-text" id="limitText"></p>
+  </section>
+
+  <section class="card options" aria-label="Options" data-i18n-aria="options.title">
+    <details class="opts" id="photoOpts">
+      <summary data-i18n="photo.title">Photo options</summary>
+      <div class="opt-body">
+        <label class="field"><span data-i18n="photo.clean">Clean-up</span>
+          <select data-setting="clean">
+            <option value="off" data-i18n="photo.cleanOff">None</option>
+            <option value="signature" data-i18n="photo.cleanSignature">Signature: white paper, dark ink, crop to signature</option>
+            <option value="document" data-i18n="photo.cleanDocument">Document: remove shadows, whiten paper</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" data-setting="gray"><span><span data-i18n="photo.gray">Black and white</span><small data-i18n="photo.grayHint">Grey tones only. Usually smaller.</small></span></label>
+        <label class="field"><span data-i18n="photo.format">Save photos as</span>
+          <select data-setting="photoFormat">
+            <option value="auto" data-i18n="photo.formatAuto">Auto (JPG; PNG if transparent)</option>
+            <option value="image/jpeg" data-i18n="photo.formatJpg">JPG — accepted everywhere</option>
+            <option value="image/png" data-i18n="photo.formatPng">PNG — lossless, larger</option>
+            <option value="image/webp" data-i18n="photo.formatWebp">WebP — smallest, not accepted everywhere</option>
+          </select>
+        </label>
+        <label class="field"><span data-i18n="photo.resize">Pixel size</span>
+          <select data-setting="resizeMode">
+            <option value="none" data-i18n="photo.resizeNone">Only shrink if needed to fit</option>
+            <option value="max" data-i18n="photo.resizeMax">No larger than…</option>
+            <option value="exact" data-i18n="photo.resizeExact">Exact size (form rules)</option>
+          </select>
+        </label>
+        <div class="field-row" id="resizeFields" hidden>
+          <input type="text" data-setting="resizeW" inputmode="numeric" autocomplete="off" data-i18n-placeholder="photo.width" data-i18n-aria="photo.width">
+          <span aria-hidden="true">×</span>
+          <input type="text" data-setting="resizeH" inputmode="numeric" autocomplete="off" data-i18n-placeholder="photo.height" data-i18n-aria="photo.height">
+          <span data-i18n="photo.px">px</span>
+        </div>
+        <label class="field" id="fitField" hidden><span data-i18n="photo.fit">If the shape is different</span>
+          <select data-setting="resizeFit">
+            <option value="crop" data-i18n="photo.fitCrop">Crop the edges (fill)</option>
+            <option value="pad" data-i18n="photo.fitPad">Keep everything, add white borders</option>
+          </select>
+        </label>
+        <p class="hint" data-i18n="photo.privacy">Hidden location and camera details are always removed.</p>
+      </div>
+    </details>
+    <details class="opts" id="pdfOpts">
+      <summary data-i18n="pdf.title">PDF options</summary>
+      <div class="opt-body">
+        <label class="check"><input type="checkbox" data-setting="pdfScanFallback"><span><span data-i18n="pdf.scan">If needed, turn pages into images to reach the limit</span><small data-i18n="pdf.scanHint">Only used when shrinking the pictures inside isn't enough. Text in those pages can no longer be selected.</small></span></label>
+        <label class="check"><input type="checkbox" data-setting="pdfPrivacy"><span><span data-i18n="pdf.privacy">Remove hidden document info</span><small data-i18n="pdf.privacyHint">Author, software and editing history. PDF/A files are left untouched.</small></span></label>
+      </div>
+    </details>
+    <details class="opts" id="combineOpts">
+      <summary data-i18n="combine.title">Combine photos into one PDF</summary>
+      <div class="opt-body">
+        <label class="check"><input type="checkbox" data-setting="combine"><span><span data-i18n="combine.on">Put all photos into a single PDF under the limit</span><small data-i18n="combine.hint">Use the arrows on each photo to set the page order.</small></span></label>
+        <label class="field"><span data-i18n="combine.page">Page size</span>
+          <select data-setting="pageSize">
+            <option value="auto" data-i18n="combine.pageAuto">Auto (A4 or Letter for your region)</option>
+            <option value="a4">A4</option>
+            <option value="letter" data-i18n="combine.pageLetter">US Letter</option>
+            <option value="photo" data-i18n="combine.pagePhoto">Same shape as the photo</option>
+          </select>
+        </label>
+        <label class="field"><span data-i18n="combine.margins">Margins</span>
+          <select data-setting="margin">
+            <option value="small" data-i18n="combine.marginSmall">Small</option>
+            <option value="none" data-i18n="combine.marginNone">None</option>
+          </select>
+        </label>
+      </div>
+    </details>
+    <label class="check strong-check"><input type="checkbox" data-setting="strong"><span><span data-i18n="strong.label">Allow lower quality for very small limits</span><small data-i18n="strong.hint">Goes below the normal readability floor. Check the result before using it.</small></span></label>
+  </section>
+
+  <p class="footer-note"><svg class="i"><use href="#i-shield"/></svg><span data-i18n="footer.private">Private · works offline · no ads</span> · <button class="link" id="btnPrivacy" data-i18n="privacy.link">Privacy</button> · <span id="versionLabel"></span></p>
+</main>
+
+<div class="runbar">
+  <div class="runbar-inner">
+    <p class="run-hint" id="runHint"></p>
+    <button class="btn primary big" id="btnRun" disabled data-i18n="run.go">Make it fit</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" popover="manual"></div>
+<input type="file" id="fileInput" multiple accept="image/*,application/pdf,.pdf,.jpg,.jpeg,.png,.webp,.gif,.bmp,.avif" hidden>
+<input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+
+<dialog id="dlgPreview" class="full">
+  <div class="dlg-head"><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button><h2 id="previewTitle"></h2></div>
+  <div class="dlg-body">
+    <div class="tabs" id="previewTabs" hidden><button class="tab" data-tab="result" aria-selected="true" data-i18n="preview.result">Result</button><button class="tab" data-tab="original" aria-selected="false" data-i18n="preview.original">Original</button></div>
+    <div id="previewBody"></div>
+    <ul class="checklist" id="previewChecks"></ul>
+  </div>
+  <div class="dlg-foot"><button class="btn" id="previewShare"><svg class="i"><use href="#i-share"/></svg><span data-i18n="common.share">Share</span></button><button class="btn primary" id="previewSave"><svg class="i"><use href="#i-save"/></svg><span data-i18n="common.save">Save</span></button></div>
+</dialog>
+
+<dialog id="dlgCrop" class="full crop-dialog">
+  <div class="dlg-head"><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button><h2 data-i18n="crop.title">Crop</h2><span class="spacer"></span><button class="btn small" id="cropRotate"><svg class="i"><use href="#i-rotate"/></svg><span data-i18n="crop.rotate">Rotate</span></button></div>
+  <div class="crop-stage" id="cropStage"><div class="crop-wrap" id="cropWrap"><canvas id="cropCanvas"></canvas><div class="crop-box" id="cropBox"><i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i><b data-h="nw"></b><b data-h="ne"></b><b data-h="sw"></b><b data-h="se"></b></div></div></div>
+  <div class="crop-tools">
+    <div class="chips" id="cropAspects" role="radiogroup" data-i18n-aria="crop.shape"></div>
+    <p class="hint" id="cropHint"></p>
+  </div>
+  <div class="dlg-foot"><button class="btn" id="cropReset" data-i18n="crop.reset">Reset</button><button class="btn primary" id="cropDone" data-i18n="common.done">Done</button></div>
+</dialog>
+
+<dialog id="dlgRules" class="sheet">
+  <div class="dlg-head"><h2 data-i18n="rules.title">Read the form's rules</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body field-stack">
+    <p class="hint" data-i18n="rules.intro">Paste or type what the website says about the file. Make It Fit sets everything up for you.</p>
+    <textarea id="rulesText" rows="4" dir="auto" data-i18n-placeholder="rules.placeholder" data-i18n-aria="rules.title"></textarea>
+    <div class="row-buttons"><button class="btn small" id="rulesPaste"><svg class="i"><use href="#i-paste"/></svg><span data-i18n="rules.paste">Paste</span></button><button class="btn small quiet" id="rulesClear" data-i18n="rules.clear">Clear</button></div>
+    <div id="rulesResult" aria-live="polite"></div>
+  </div>
+</dialog>
+
+<dialog id="dlgSaveForm" class="sheet">
+  <div class="dlg-head"><h2 data-i18n="forms.saveTitle">Save as one of my forms</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <form method="dialog" id="saveFormForm">
+    <div class="dlg-body field-stack">
+      <p class="hint" data-i18n="forms.saveIntro">Saves the current size limit and options with a name, for one-tap use next time.</p>
+      <label class="field"><span data-i18n="forms.name">Name</span><input type="text" id="formName" maxlength="40" required dir="auto" enterkeyhint="done"></label>
+      <p class="hint" id="formSummary"></p>
+    </div>
+    <div class="dlg-foot"><button class="btn" type="button" data-close data-i18n="common.cancel">Cancel</button><button class="btn primary" type="submit" data-i18n="common.save">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgForms" class="sheet">
+  <div class="dlg-head"><h2 data-i18n="forms.manageTitle">My forms</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body"><ul class="form-list" id="formList"></ul></div>
+  <div class="dlg-foot"><button class="btn primary" data-close data-i18n="common.done">Done</button></div>
+</dialog>
+
+<dialog id="dlgPassword" class="sheet">
+  <div class="dlg-head"><h2 data-i18n="password.title">This PDF needs a password</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <form method="dialog" id="passwordForm">
+    <div class="dlg-body field-stack">
+      <p id="passwordName" class="hint"></p>
+      <label class="field"><span data-i18n="password.label">Password</span><input type="password" id="passwordInput" autocomplete="off" required></label>
+      <p class="error-text" id="passwordError" hidden></p>
+      <p class="hint" data-i18n="password.note">The password is only used to open the file on this phone and is never saved.</p>
+    </div>
+    <div class="dlg-foot"><button class="btn" type="button" data-close data-i18n="common.cancel">Cancel</button><button class="btn primary" type="submit" id="passwordSubmit" data-i18n="password.open">Open PDF</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgConfirm" class="sheet">
+  <div class="dlg-head"><h2 id="confirmTitle"></h2></div>
+  <div class="dlg-body" id="confirmBody"></div>
+  <div class="dlg-foot wrap" id="confirmFoot"></div>
+</dialog>
+
+<dialog id="dlgSettings" class="sheet">
+  <div class="dlg-head"><h2 data-i18n="settings.title">Settings</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body field-stack">
+    <label class="field"><span data-i18n="settings.language">Language</span>
+      <select data-setting="lang"><option value="auto" data-i18n="settings.langAuto">Phone language</option><option value="en">English</option><option value="ar">العربية</option></select>
+    </label>
+    <label class="field"><span data-i18n="settings.theme">Theme</span>
+      <select data-setting="theme"><option value="system" data-i18n="settings.themeSystem">Same as phone</option><option value="light" data-i18n="settings.themeLight">Light</option><option value="dark" data-i18n="settings.themeDark">Dark</option></select>
+    </label>
+    <label class="field"><span data-i18n="settings.names">Name of saved files</span>
+      <select data-setting="suffixStyle"><option value="limit">photo_under-50KB.jpg</option><option value="small">photo_small.jpg</option><option value="same" data-i18n="settings.namesSame">photo.jpg (same name)</option></select>
+    </label>
+    <p class="hint" data-i18n="settings.kbNote">Make It Fit counts 1 KB as 1,000 bytes for the maximum and 1,024 bytes for the minimum, so the file passes whichever way the website counts.</p>
+    <div class="row-buttons">
+      <button class="btn small" type="button" id="btnManageForms" data-i18n="forms.manageTitle">My forms</button>
+      <button class="btn small" type="button" id="btnPrivacy2" data-i18n="privacy.title">Privacy policy</button>
+      <a class="btn small" id="supportLink" href="mailto:haymohsen@gmail.com?subject=Make%20It%20Fit%20(Android)" data-i18n="settings.support">Contact support</a>
+    </div>
+    <button class="btn small quiet danger" type="button" id="btnResetSettings" data-i18n="settings.reset">Reset all settings</button>
+  </div>
+  <div class="dlg-foot"><span class="hint" id="settingsVersion"></span><span class="spacer"></span><button class="btn primary" data-close data-i18n="common.done">Done</button></div>
+</dialog>
+
+<dialog id="dlgHelp" class="sheet tall">
+  <div class="dlg-head"><h2 data-i18n="help.title">Help</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body faq" id="helpBody"></div>
+  <div class="dlg-foot"><button class="btn primary" data-close data-i18n="common.close">Close</button></div>
+</dialog>
+
+<dialog id="dlgPrivacy" class="sheet tall">
+  <div class="dlg-head"><h2 data-i18n="privacy.title">Privacy policy</h2><button class="btn icon" data-close data-i18n-aria="common.close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body faq" id="privacyBody"></div>
+  <div class="dlg-foot"><button class="btn primary" data-close data-i18n="common.close">Close</button></div>
+</dialog>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
